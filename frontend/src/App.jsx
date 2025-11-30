@@ -3,6 +3,8 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import DonatePage from './pages/DonatePage';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentCancel from './pages/PaymentCancel';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -25,6 +27,22 @@ function App() {
             <>
               <Navbar />
               <DonatePage />
+              <Footer />
+            </>
+          } />
+          
+          {/* Payment Result Routes */}
+          <Route path="/payment/success" element={
+            <>
+              <Navbar />
+              <PaymentSuccess />
+              <Footer />
+            </>
+          } />
+          <Route path="/payment/cancel" element={
+            <>
+              <Navbar />
+              <PaymentCancel />
               <Footer />
             </>
           } />

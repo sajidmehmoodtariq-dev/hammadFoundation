@@ -33,19 +33,41 @@ const DonatePage = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Integrate with PayPro API
-    console.log('Donation form submitted:', formData);
-    alert('Thank you for your donation! PayPro integration will be added soon.');
-    // Reset form
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      amount: '',
-      message: ''
-    });
+    setLoading(true);
+    setError('');
+
+    try {
+      const apiUrl = import.meta.env.PROD 
+        ? 'https://hammadfoundationschool.org/api/payment/create'
+        : 'http://localhost:3000/api/payment/create';
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.paymentUrl) {
+        // Redirect to PayPro payment page
+        window.location.href = data.paymentUrl;
+      } else {
+        setError(data.message || 'Failed to create payment. Please try again.');
+      }
+    } catch (err) {
+      console.error('Payment Error:', err);
+      setError('Unable to connect to payment server. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -135,6 +157,13 @@ const DonatePage = () => {
             <div className="donation-form-card">
               <h2>Donate Online with PayPro</h2>
               <p className="form-intro">Make a secure online donation using your credit/debit card</p>
+              
+              {error && (
+                <div className="error-alert">
+                  <span className="error-icon">⚠️</span>
+                  <span>{error}</span>
+                </div>
+              )}
               
               <form onSubmit={handleSubmit} className="donation-form">
                 <div className="form-group">
@@ -235,8 +264,15 @@ const DonatePage = () => {
                   />
                 </div>
 
-                <button type="submit" className="submit-btn">
-                  Proceed to Payment
+                <button type="submit" className="submit-btn" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <span className="spinner"></span>
+                      Processing...
+                    </>
+                  ) : (
+                    'Proceed to Payment'
+                  )}
                 </button>
 
                 <div className="paypro-info">
