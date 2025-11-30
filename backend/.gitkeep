@@ -1,0 +1,15 @@
+# Backend - Node.js/Express (Coming Soon)
+
+This folder will contain the server-side application for managing donations, admin panel, and PayPro integration.
+
+## Setup Instructions (When Ready)
+
+1. Initialize Node.js project
+2. Install required dependencies
+3. Configure environment variables
+4. Set up database connection
+5. Implement API endpoints
+6. Integrate PayPro payment gateway
+7. Deploy backend service
+
+Refer to the README.md in this folder for detailed implementation guide.
