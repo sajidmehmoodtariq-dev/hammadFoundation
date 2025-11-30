@@ -297,6 +297,92 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+      {/* Admission Gallery Section */}
+      <section className="admission-gallery" id="admissions">
+        <div className="container">
+          <div className="section-header">
+            <span className="section-label">Join Us</span>
+            <h2 className="section-title">Wish to Know About Our Admission Process?</h2>
+            <p className="section-subtitle">
+              Take a glimpse of our campus life and start your journey with us
+            </p>
+          </div>
+          
+          <div className="gallery-grid">
+            <div className="gallery-item">
+              <img 
+                src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80" 
+                alt="Students in classroom" 
+              />
+              <div className="gallery-overlay">
+                <h4>Interactive Learning</h4>
+              </div>
+            </div>
+
+            <div className="gallery-item">
+              <img 
+                src="https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=600&q=80" 
+                alt="Science lab activities" 
+              />
+              <div className="gallery-overlay">
+                <h4>Science & Technology</h4>
+              </div>
+            </div>
+
+            <div className="gallery-item">
+              <img 
+                src="https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600&q=80" 
+                alt="Sports activities" 
+              />
+              <div className="gallery-overlay">
+                <h4>Sports & Recreation</h4>
+              </div>
+            </div>
+
+            <div className="gallery-item">
+              <img 
+                src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600&q=80" 
+                alt="Library reading" 
+              />
+              <div className="gallery-overlay">
+                <h4>Library Resources</h4>
+              </div>
+            </div>
+
+            <div className="gallery-item">
+              <img 
+                src="https://images.unsplash.com/photo-1581726707445-75cbe4efc586?w=600&q=80" 
+                alt="Art activities" 
+              />
+              <div className="gallery-overlay">
+                <h4>Creative Arts</h4>
+              </div>
+            </div>
+
+            <div className="gallery-item">
+              <img 
+                src="https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=600&q=80" 
+                alt="Group activities" 
+              />
+              <div className="gallery-overlay">
+                <h4>Team Building</h4>
+              </div>
+            </div>
+          </div>
+
+          <div className="admission-cta">
+            <div className="cta-content">
+              <h3>Ready to Join Our School Family?</h3>
+              <p>Admissions are open! Contact us today to learn more about our free education program.</p>
+              <div className="cta-buttons">
+                <a href="#contact" className="btn btn-primary">Contact Admissions</a>
+                <a href="/donate" className="btn btn-secondary">Support Our Mission</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

@@ -3,18 +3,41 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import DonatePage from './pages/DonatePage';
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
 function App() {
   return (
     <Router>
       <div className="App">
-        <Navbar />
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/donate" element={<DonatePage />} />
+          {/* Public Routes */}
+          <Route path="/" element={
+            <>
+              <Navbar />
+              <HomePage />
+              <Footer />
+            </>
+          } />
+          <Route path="/donate" element={
+            <>
+              <Navbar />
+              <DonatePage />
+              <Footer />
+            </>
+          } />
+          
+          {/* Admin Routes */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin" element={<AdminLogin />} />
         </Routes>
-        <Footer />
       </div>
     </Router>
   );

@@ -72,7 +72,16 @@ const Navbar = () => {
 
         <ul className={`nav-menu ${isMobileMenuOpen ? 'active' : ''}`}>
           <li className="nav-item">
-            <Link to="/" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
+            <Link 
+              to="/" 
+              className="nav-link" 
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            >
+              Home
+            </Link>
           </li>
           {isHomePage && (
             <>
