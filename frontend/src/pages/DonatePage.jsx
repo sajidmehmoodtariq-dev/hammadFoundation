@@ -7,13 +7,29 @@ const DonatePage = () => {
     email: '',
     phone: '',
     amount: '',
-    message: ''
+    message: '',
+    currency: 'PKR'
   });
+
+  const currencies = {
+    PKR: { symbol: 'Rs.', label: 'PKR (Pakistani Rupee)', amounts: [1000, 5000, 10000, 25000] },
+    USD: { symbol: '$', label: 'USD (US Dollar)', amounts: [10, 50, 100, 250] },
+    EUR: { symbol: '€', label: 'EUR (Euro)', amounts: [10, 50, 100, 200] },
+    SAR: { symbol: 'SR', label: 'SAR (Saudi Riyal)', amounts: [50, 200, 400, 1000] }
+  };
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
+    });
+  };
+
+  const handleCurrencyChange = (e) => {
+    setFormData({
+      ...formData,
+      currency: e.target.value,
+      amount: '' // Reset amount when currency changes
     });
   };
 
@@ -160,48 +176,51 @@ const DonatePage = () => {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="amount">Donation Amount (PKR) *</label>
-                  <input
-                    type="number"
-                    id="amount"
-                    name="amount"
-                    value={formData.amount}
-                    onChange={handleChange}
-                    required
-                    min="100"
-                    placeholder="Enter amount"
-                  />
+                  <label htmlFor="currency">Currency *</label>
+                  <select
+                    id="currency"
+                    name="currency"
+                    value={formData.currency}
+                    onChange={handleCurrencyChange}
+                    className="currency-select"
+                  >
+                    {Object.entries(currencies).map(([code, data]) => (
+                      <option key={code} value={code}>
+                        {data.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="amount">Donation Amount ({formData.currency}) *</label>
+                  <div className="amount-input-wrapper">
+                    <span className="currency-symbol">{currencies[formData.currency].symbol}</span>
+                    <input
+                      type="number"
+                      id="amount"
+                      name="amount"
+                      value={formData.amount}
+                      onChange={handleChange}
+                      required
+                      min="1"
+                      placeholder="Enter amount"
+                      className="amount-input"
+                    />
+                  </div>
                 </div>
 
                 <div className="quick-amounts">
-                  <button
-                    type="button"
-                    onClick={() => setFormData({...formData, amount: '1000'})}
-                    className="amount-btn"
-                  >
-                    Rs. 1,000
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFormData({...formData, amount: '5000'})}
-                    className="amount-btn"
-                  >
-                    Rs. 5,000
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFormData({...formData, amount: '10000'})}
-                    className="amount-btn"
-                  >
-                    Rs. 10,000
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFormData({...formData, amount: '25000'})}
-                    className="amount-btn"
-                  >
-                    Rs. 25,000
-                  </button>
+                  {currencies[formData.currency].amounts.map((amt) => (
+                    <button
+                      key={amt}
+                      type="button"
+                      onClick={() => setFormData({...formData, amount: amt.toString()})}
+                      className="amount-btn"
+                    >
+                      {currencies[formData.currency].symbol} {amt.toLocaleString()}
+                    </button>
+                  ))}
                 </div>
 
                 <div className="form-group">
