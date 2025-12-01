@@ -1,26 +1,95 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { contentAPI, uploadAPI } from '../../../utils/api';
 import './DirectorEditor.css';
 
 const DirectorEditor = () => {
   const [formData, setFormData] = useState({
-    name: 'Director Name',
-    title: 'Director, Hammad Foundation School',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80',
-    message: `Dear Students, Parents, and Well-wishers,
-
-It gives me immense pleasure to welcome you to Hammad Foundation School. Education is the most powerful tool for changing the world, and at our school, we are committed to providing that tool to every child, regardless of their financial circumstances.
-
-Our dedicated faculty and staff work tirelessly to create a nurturing environment where students can explore their talents, develop critical thinking skills, and grow into responsible citizens. We believe in holistic education that develops not just academic excellence but also character, creativity, and compassion.
-
-I invite you to join us in our mission to educate and empower the next generation. Together, we can make a difference.`
+    id: null,
+    name: '',
+    title: '',
+    image_url: '',
+    message: ''
   });
 
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
-  const handleSave = () => {
-    setIsEditing(false);
-    alert('Director message updated successfully!');
-    // TODO: Save to backend API
+  useEffect(() => {
+    loadDirector();
+  }, []);
+
+  const loadDirector = async () => {
+    try {
+      setLoading(true);
+      const response = await contentAPI.getDirector();
+      if (response.success && response.director) {
+        setFormData({
+          id: response.director._id,
+          name: response.director.name,
+          title: response.director.title,
+          image_url: response.director.image_url,
+          message: response.director.message
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load director:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    if (file.size > 3 * 1024 * 1024) {
+      alert('Image size should be less than 3MB');
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const response = await uploadAPI.uploadImage(file);
+      
+      if (response.success) {
+        setFormData({ ...formData, image_url: response.imageUrl });
+        alert('Image uploaded successfully!');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('Failed to upload image: ' + error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      const directorData = {
+        name: formData.name,
+        title: formData.title,
+        image_url: formData.image_url,
+        message: formData.message
+      };
+
+      await contentAPI.updateDirector(formData.id, directorData);
+      
+      setIsEditing(false);
+      alert('Director information updated successfully!');
+      await loadDirector();
+    } catch (error) {
+      console.error('Save error:', error);
+      alert('Failed to save: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -33,8 +102,8 @@ I invite you to join us in our mission to educate and empower the next generatio
           </button>
         ) : (
           <div className="btn-group">
-            <button className="btn-save" onClick={handleSave}>
-              💾 Save Changes
+            <button className="btn-save" onClick={handleSave} disabled={loading || uploading}>
+              {loading ? '💾 Saving...' : '💾 Save Changes'}
             </button>
             <button className="btn-cancel" onClick={() => setIsEditing(false)}>
               ❌ Cancel
@@ -46,16 +115,24 @@ I invite you to join us in our mission to educate and empower the next generatio
       <div className="editor-content">
         <div className="director-preview">
           <div className="image-section">
-            <img src={formData.image} alt="Director" />
+            <img src={formData.image_url} alt="Director" />
             {isEditing && (
               <div className="image-edit">
-                <label>Director Image URL</label>
+                <label>Director Image</label>
                 <input
-                  type="text"
-                  value={formData.image}
-                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  placeholder="Enter image URL"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={uploading}
+                  id="director-upload"
+                  style={{ display: 'none' }}
                 />
+                <label htmlFor="director-upload" className="btn-upload">
+                  {uploading ? '📤 Uploading...' : '📁 Upload New Image'}
+                </label>
+                <small style={{ display: 'block', marginTop: '8px', color: '#666' }}>
+                  Max size: 3MB
+                </small>
               </div>
             )}
           </div>

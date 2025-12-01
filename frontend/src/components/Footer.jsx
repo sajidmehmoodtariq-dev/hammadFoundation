@@ -12,7 +12,7 @@ const Footer = () => {
         <div className="footer-section">
           <h4>Contact Us</h4>
           <p>Email: info@hammadfoundation.edu.pk</p>
-          <p>Phone: +92 XXX XXXXXXX</p>
+          <p>Phone: +92 300 8099015</p>
           <p>Address: [School Address Here]</p>
         </div>
         

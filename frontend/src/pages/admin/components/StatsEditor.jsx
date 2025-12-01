@@ -1,26 +1,62 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { contentAPI } from '../../../utils/api';
 import './StatsEditor.css';
 
 const StatsEditor = () => {
-  const [stats, setStats] = useState([
-    { id: 1, icon: '👨‍🏫', number: '35+', label: 'Qualified Staff' },
-    { id: 2, icon: '📚', number: '999+', label: 'Current Enrollments' },
-    { id: 3, icon: '🎓', number: '999+', label: 'Successful Graduates' },
-    { id: 4, icon: '⭐', number: '100%', label: 'Free Education' }
-  ]);
-
+  const [stats, setStats] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadStats();
+  }, []);
+
+  const loadStats = async () => {
+    try {
+      setLoading(true);
+      const response = await contentAPI.getStats();
+      if (response.success && response.stats) {
+        setStats(response.stats.map(s => ({
+          id: s._id,
+          icon: s.icon,
+          number: s.number,
+          label: s.label
+        })));
+      }
+    } catch (error) {
+      console.error('Failed to load stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleEdit = (stat) => {
     setEditingId(stat.id);
     setFormData(stat);
   };
 
-  const handleSave = () => {
-    setStats(stats.map(s => s.id === editingId ? formData : s));
-    setEditingId(null);
-    alert('Statistics updated successfully!');
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      const statData = {
+        icon: formData.icon,
+        number: formData.number,
+        label: formData.label
+      };
+
+      await contentAPI.updateStat(editingId, statData);
+      
+      await loadStats();
+      setEditingId(null);
+      setFormData({});
+      alert('Statistics updated successfully!');
+    } catch (error) {
+      console.error('Save error:', error);
+      alert('Failed to save: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -71,8 +107,10 @@ const StatsEditor = () => {
                 </div>
 
                 <div className="form-actions">
-                  <button className="btn-save" onClick={handleSave}>Save</button>
-                  <button className="btn-cancel" onClick={handleCancel}>Cancel</button>
+                  <button className="btn-save" onClick={handleSave} disabled={loading}>
+                    {loading ? 'Saving...' : 'Save'}
+                  </button>
+                  <button className="btn-cancel" onClick={handleCancel} disabled={loading}>Cancel</button>
                 </div>
               </div>
             ) : (

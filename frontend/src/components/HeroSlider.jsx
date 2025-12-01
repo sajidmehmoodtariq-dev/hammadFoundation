@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation, EffectFade } from 'swiper/modules';
 import { Link } from 'react-router-dom';
@@ -8,8 +9,7 @@ import 'swiper/css/effect-fade';
 import './HeroSlider.css';
 
 const HeroSlider = () => {
-  // Placeholder images - replace these with actual school images
-  const slides = [
+  const [slides, setSlides] = useState([
     {
       id: 1,
       image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1920&q=80',
@@ -34,7 +34,44 @@ const HeroSlider = () => {
       description: 'Every child deserves access to excellent education',
       badge: 'No Fees Required'
     }
-  ];
+  ]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchSlides();
+  }, []);
+
+  const fetchSlides = async () => {
+    try {
+      const response = await fetch('https://hammad-foundation-beackend.vercel.app/api/content/slider');
+      const data = await response.json();
+      
+      if (data.success && data.slides && data.slides.length > 0) {
+        const formattedSlides = data.slides.map(slide => ({
+          id: slide._id,
+          image: slide.image_url,
+          title: slide.title,
+          subtitle: slide.subtitle,
+          description: slide.description,
+          badge: slide.badge
+        }));
+        setSlides(formattedSlides);
+      }
+    } catch (error) {
+      console.error('Failed to load slides:', error);
+      // Keep default slides if API fails
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="hero-slider" style={{ height: '600px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6' }}>
+        <p style={{ fontSize: '1.2rem', color: '#666' }}>Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="hero-slider">

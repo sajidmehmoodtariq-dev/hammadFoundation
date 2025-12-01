@@ -1,9 +1,63 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import HeroSlider from '../components/HeroSlider';
 import './HomePage.css';
 
 const HomePage = () => {
   const [activeTab, setActiveTab] = useState('mission');
+  const [stats, setStats] = useState([
+    { icon: '👨‍🏫', number: '35+', label: 'Qualified Staff' },
+    { icon: '📚', number: '999+', label: 'Current Enrollments' },
+    { icon: '🎓', number: '999+', label: 'Successful Graduates' },
+    { icon: '⭐', number: '100%', label: 'Free Education' }
+  ]);
+  const [director, setDirector] = useState({
+    name: 'Director Name',
+    title: 'Director, Hammad Foundation School',
+    image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80',
+    message: `Dear Students, Parents, and Well-wishers,
+
+It gives me immense pleasure to welcome you to Hammad Foundation School. Education is the most powerful tool for changing the world, and at our school, we are committed to providing that tool to every child, regardless of their financial circumstances.
+
+Our dedicated faculty and staff work tirelessly to create a nurturing environment where students can explore their talents, develop critical thinking skills, and grow into responsible citizens. We believe in holistic education that develops not just academic excellence but also character, creativity, and compassion.
+
+I invite you to join us in our mission to educate and empower the next generation. Together, we can make a difference.`
+  });
+
+  useEffect(() => {
+    fetchStats();
+    fetchDirector();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      const response = await fetch('https://hammad-foundation-beackend.vercel.app/api/content/stats');
+      const data = await response.json();
+      
+      if (data.success && data.stats) {
+        const formattedStats = data.stats.map(stat => ({
+          icon: stat.icon,
+          number: stat.number,
+          label: stat.label
+        }));
+        setStats(formattedStats);
+      }
+    } catch (error) {
+      console.error('Failed to load stats:', error);
+    }
+  };
+
+  const fetchDirector = async () => {
+    try {
+      const response = await fetch('https://hammad-foundation-beackend.vercel.app/api/content/director');
+      const data = await response.json();
+      
+      if (data.success && data.director) {
+        setDirector(data.director);
+      }
+    } catch (error) {
+      console.error('Failed to load director info:', error);
+    }
+  };
 
   return (
     <div className="home-page">
@@ -76,29 +130,13 @@ const HomePage = () => {
         <div className="container">
           <h2 className="stats-heading">Our School at a Glance</h2>
           <div className="stats-grid">
-            <div className="stat-card">
-              <div className="stat-icon">👨‍🏫</div>
-              <div className="stat-number" data-target="35">35+</div>
-              <div className="stat-label">Qualified Staff</div>
-            </div>
-            
-            <div className="stat-card">
-              <div className="stat-icon">📚</div>
-              <div className="stat-number" data-target="999">999+</div>
-              <div className="stat-label">Current Enrollments</div>
-            </div>
-            
-            <div className="stat-card">
-              <div className="stat-icon">🎓</div>
-              <div className="stat-number" data-target="999">999+</div>
-              <div className="stat-label">Successful Graduates</div>
-            </div>
-            
-            <div className="stat-card">
-              <div className="stat-icon">⭐</div>
-              <div className="stat-number" data-target="100">100%</div>
-              <div className="stat-label">Free Education</div>
-            </div>
+            {stats.map((stat, index) => (
+              <div key={index} className="stat-card">
+                <div className="stat-icon">{stat.icon}</div>
+                <div className="stat-number">{stat.number}</div>
+                <div className="stat-label">{stat.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -114,10 +152,9 @@ const HomePage = () => {
           <div className="director-content">
             <div className="director-image-wrapper">
               <div className="director-image">
-                {/* Placeholder - Replace with actual director's image */}
                 <img 
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80" 
-                  alt="Director" 
+                  src={director.image_url} 
+                  alt={director.name} 
                 />
               </div>
               <div className="director-badge">
@@ -128,28 +165,12 @@ const HomePage = () => {
             <div className="director-text">
               <div className="quote-icon">"</div>
               <h3>Welcome from Our Director</h3>
-              <p>
-                Dear Students, Parents, and Well-wishers,
-              </p>
-              <p>
-                It gives me immense pleasure to welcome you to Hammad Foundation School. 
-                Education is the most powerful tool for changing the world, and at our school, 
-                we are committed to providing that tool to every child, regardless of their 
-                financial circumstances.
-              </p>
-              <p>
-                Our dedicated faculty and staff work tirelessly to create a nurturing environment 
-                where students can explore their talents, develop critical thinking skills, and 
-                grow into responsible citizens. We believe in holistic education that develops 
-                not just academic excellence but also character, creativity, and compassion.
-              </p>
-              <p>
-                I invite you to join us in our mission to educate and empower the next generation. 
-                Together, we can make a difference.
-              </p>
+              <div style={{ whiteSpace: 'pre-wrap' }}>
+                {director.message}
+              </div>
               <p className="director-signature">
-                <strong>— Director Name</strong><br />
-                <em>Director, Hammad Foundation School</em>
+                <strong>— {director.name}</strong><br />
+                <em>{director.title}</em>
               </p>
             </div>
           </div>
@@ -293,6 +314,72 @@ const HomePage = () => {
               <div className="facility-icon">🏥</div>
               <h3>Medical Room</h3>
               <p>First-aid facility and basic medical care on campus</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Location Section */}
+      <section className="location-section" id="location">
+        <div className="container">
+          <div className="section-header">
+            <span className="section-label">Visit Us</span>
+            <h2 className="section-title">Our Location</h2>
+            <p className="section-subtitle">
+              Come visit us and see our campus facilities
+            </p>
+          </div>
+
+          <div className="location-content">
+            <div className="map-container">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3401.4974847934814!2d74.35825137543695!3d31.50802574876879!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391905888888888f%3A0x6e6e6e6e6e6e6e6e!2sHammad%20Foundation%20School!5e0!3m2!1sen!2s!4v1234567890123!5m2!1sen!2s"
+                width="100%"
+                height="450"
+                style={{ border: 0, borderRadius: '12px' }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Hammad Foundation School Location"
+              ></iframe>
+            </div>
+
+            <div className="location-details">
+              <div className="location-card">
+                <div className="location-icon">📍</div>
+                <h3>Address</h3>
+                <p>Hammad Foundation School<br />
+                [Your Complete Address Here]<br />
+                Lahore, Pakistan</p>
+                <a 
+                  href="https://maps.app.goo.gl/9DBLCK2DUaDhtGs17" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="btn-location"
+                >
+                  📍 Open in Google Maps
+                </a>
+              </div>
+
+              <div className="location-card">
+                <div className="location-icon">📞</div>
+                <h3>Contact</h3>
+                <p>
+                  <strong>Phone:</strong> +92 300 8099015<br />
+                  <strong>Email:</strong> info@hammadfoundationschool.org<br />
+                  <strong>Office Hours:</strong> Mon-Fri, 9AM-5PM
+                </p>
+              </div>
+
+              <div className="location-card">
+                <div className="location-icon">🚌</div>
+                <h3>How to Reach</h3>
+                <p>
+                  Our school is easily accessible by public transport. 
+                  Free transportation services are available for eligible students.
+                  Contact us for more details about school bus routes.
+                </p>
+              </div>
             </div>
           </div>
         </div>

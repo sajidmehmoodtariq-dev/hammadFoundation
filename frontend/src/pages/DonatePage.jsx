@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './DonatePage.css';
 
 const DonatePage = () => {
@@ -35,6 +35,31 @@ const DonatePage = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [bankDetails, setBankDetails] = useState({
+    account_title: 'Hammad Foundation School',
+    account_number: 'Loading...',
+    bank_name: 'Loading...',
+    branch_code: '',
+    branch_name: '',
+    iban: ''
+  });
+
+  useEffect(() => {
+    fetchBankDetails();
+  }, []);
+
+  const fetchBankDetails = async () => {
+    try {
+      const response = await fetch('https://hammad-foundation-beackend.vercel.app/api/content/bank');
+      const data = await response.json();
+      
+      if (data.success && data.bank) {
+        setBankDetails(data.bank);
+      }
+    } catch (error) {
+      console.error('Failed to load bank details:', error);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -122,24 +147,34 @@ const DonatePage = () => {
               <div className="bank-info">
                 <div className="info-row">
                   <span className="label">Bank Name:</span>
-                  <span className="value">[Bank Name Here]</span>
+                  <span className="value">{bankDetails.bank_name}</span>
                 </div>
                 <div className="info-row">
                   <span className="label">Account Title:</span>
-                  <span className="value">Hammad Foundation School</span>
+                  <span className="value">{bankDetails.account_title}</span>
                 </div>
                 <div className="info-row">
                   <span className="label">Account Number:</span>
-                  <span className="value">[Account Number Here]</span>
+                  <span className="value">{bankDetails.account_number}</span>
                 </div>
-                <div className="info-row">
-                  <span className="label">IBAN:</span>
-                  <span className="value">[IBAN Number Here]</span>
-                </div>
-                <div className="info-row">
-                  <span className="label">Branch Code:</span>
-                  <span className="value">[Branch Code Here]</span>
-                </div>
+                {bankDetails.iban && (
+                  <div className="info-row">
+                    <span className="label">IBAN:</span>
+                    <span className="value">{bankDetails.iban}</span>
+                  </div>
+                )}
+                {bankDetails.branch_code && (
+                  <div className="info-row">
+                    <span className="label">Branch Code:</span>
+                    <span className="value">{bankDetails.branch_code}</span>
+                  </div>
+                )}
+                {bankDetails.branch_name && (
+                  <div className="info-row">
+                    <span className="label">Branch:</span>
+                    <span className="value">{bankDetails.branch_name}</span>
+                  </div>
+                )}
               </div>
 
               <div className="bank-note">
