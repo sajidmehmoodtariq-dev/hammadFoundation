@@ -21,13 +21,26 @@ const apiRequest = async (endpoint, options = {}) => {
     headers,
   });
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.message || 'API request failed');
+  // Check if response is JSON
+  const contentType = response.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || `Request failed with status ${response.status}`);
+    }
+    
+    return data;
+  } else {
+    // Handle non-JSON responses (like HTML error pages)
+    if (!response.ok) {
+      if (response.status === 413) {
+        throw new Error('Image is too large. Please use a smaller image (max 3MB).');
+      }
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+    throw new Error('Invalid response from server');
   }
-
-  return data;
 };
 
 // Admin API

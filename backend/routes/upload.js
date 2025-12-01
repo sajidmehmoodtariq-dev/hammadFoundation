@@ -8,7 +8,7 @@ const storage = multer.memoryStorage();
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
+    fileSize: 3 * 1024 * 1024 // 3MB limit (before compression)
   },
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
@@ -28,11 +28,11 @@ router.post('/upload', upload.single('image'), async (req, res) => {
 
     // Compress and convert image using sharp
     const compressedImage = await sharp(req.file.buffer)
-      .resize(1200, 800, { // Resize to reasonable dimensions
+      .resize(800, 600, { // Smaller dimensions for base64
         fit: 'inside',
         withoutEnlargement: true
       })
-      .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+      .jpeg({ quality: 60 }) // Lower quality for smaller size
       .toBuffer();
 
     // Convert to base64

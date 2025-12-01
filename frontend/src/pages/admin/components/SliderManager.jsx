@@ -71,9 +71,9 @@ const SliderManager = () => {
       return;
     }
 
-    // Validate file size (5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Image size should be less than 5MB');
+    // Validate file size (3MB)
+    if (file.size > 3 * 1024 * 1024) {
+      alert('Image size should be less than 3MB for better performance');
       return;
     }
 
@@ -199,7 +199,7 @@ const SliderManager = () => {
                       {uploading ? '📤 Uploading...' : '📁 Upload New Image'}
                     </label>
                     <small style={{ display: 'block', marginTop: '8px', color: '#666' }}>
-                      Max size: 5MB. Previous image will be replaced.
+                      Max size: 3MB. Image will be optimized automatically.
                     </small>
                   </div>
                 </div>
