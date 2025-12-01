@@ -3,13 +3,24 @@ const cors = require('cors');
 const axios = require('axios');
 require('dotenv').config();
 
-const db = require('./config/database');
+const connectDB = require('./config/database');
 const { initDatabase } = require('./config/initDatabase');
 const { seedDatabase } = require('./config/seedDatabase');
+const Donation = require('./models/Donation');
+
+// Import routes
+const adminRoutes = require('./routes/admin');
+const donationRoutes = require('./routes/donations');
+const contentRoutes = require('./routes/content');
 
 const app = express();
 
-app.use(cors());
+// CORS configuration for Vercel and cPanel
+app.use(cors({
+  origin: process.env.FRONTEND_URL || '*',
+  credentials: true
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -43,13 +54,42 @@ function sanitizePhone(phone) {
   return clean;
 }
 
+// API Routes
+app.use('/api/admin', adminRoutes);
+app.use('/api/donations', donationRoutes);
+app.use('/api/content', contentRoutes);
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    message: 'Server is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Payment creation endpoint
 app.post('/api/payment/create', async (req, res) => {
   try {
-    const { name, email, phone, amount, message } = req.body;
+    const { name, email, phone, amount, message, currency } = req.body;
 
     const issueDate = new Date();
     const dueDate = new Date();
     dueDate.setDate(issueDate.getDate() + 10);
+
+    const orderNumber = `ORD-${Date.now()}`;
+
+    // Create donation record
+    const donation = await Donation.create({
+      order_number: orderNumber,
+      donor_name: name,
+      donor_email: email,
+      donor_phone: phone,
+      amount: parseFloat(amount),
+      currency: currency || 'PKR',
+      message: message || '',
+      payment_status: 'pending'
+    });
 
     const payloadArray = [
       {
@@ -57,7 +97,7 @@ app.post('/api/payment/create', async (req, res) => {
         "MerchantPassword": PAYPRO_CONFIG.password
       },
       {
-        "OrderNumber": `ORD-${Date.now()}`,
+        "OrderNumber": orderNumber,
         "OrderAmount": String(amount),
         "OrderDueDate": getFormattedDate(dueDate),
         "OrderType": "Service",
@@ -92,6 +132,11 @@ app.post('/api/payment/create', async (req, res) => {
     // Handle array response
     if (Array.isArray(data) && data.length > 0) {
       if (data[0].Status === "00") {
+        // Update donation with transaction ID
+        await Donation.findByIdAndUpdate(donation._id, {
+          transaction_id: data[1].ConnectPayId
+        });
+
         return res.json({
           success: true,
           paymentUrl: data[1].Click2Pay || data[1].PaymentUrl,
@@ -120,18 +165,46 @@ app.post('/api/payment/create', async (req, res) => {
   }
 });
 
+// Payment status endpoint
+app.get('/api/payment/status/:transactionId', async (req, res) => {
+  try {
+    const donation = await Donation.findOne({ 
+      transaction_id: req.params.transactionId 
+    });
+    
+    if (!donation) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Transaction not found' 
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      donation 
+    });
+  } catch (error) {
+    console.error('Status check error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to check payment status' 
+    });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 
 // Initialize database and start server
 async function startServer() {
   try {
+    await connectDB();
     await initDatabase();
     await seedDatabase();
     
     app.listen(PORT, () => {
       console.log(`\n🚀 Server running on port ${PORT}`);
       console.log(`📍 Health check: http://localhost:${PORT}/api/health`);
-      console.log(`💳 PayPro test: http://localhost:${PORT}/api/test-paypro\n`);
+      console.log(`💳 Environment: ${process.env.NODE_ENV || 'development'}\n`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
@@ -140,3 +213,6 @@ async function startServer() {
 }
 
 startServer();
+
+// Export for Vercel
+module.exports = app;

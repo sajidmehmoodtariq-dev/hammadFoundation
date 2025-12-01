@@ -42,11 +42,9 @@ const DonatePage = () => {
     setError('');
 
     try {
-      const apiUrl = import.meta.env.PROD 
-        ? 'https://hammadfoundationschool.org/api/payment/create'
-        : 'http://localhost:3000/api/payment/create';
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://your-backend-app.vercel.app';
       
-      const response = await fetch(apiUrl, {
+      const response = await fetch(`${apiUrl}/api/payment/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

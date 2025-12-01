@@ -13,9 +13,7 @@ const PaymentSuccess = () => {
 
     // Optional: Verify payment status with backend
     if (transactionId) {
-      const apiUrl = import.meta.env.PROD 
-        ? 'https://hammadfoundationschool.org'
-        : 'http://localhost:3000';
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://your-backend-app.vercel.app';
       
       fetch(`${apiUrl}/api/payment/status/${transactionId}`)
         .then(res => res.json())

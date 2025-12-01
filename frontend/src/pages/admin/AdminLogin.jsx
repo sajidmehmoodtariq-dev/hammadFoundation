@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { adminAPI } from '../../utils/api';
 import './AdminLogin.css';
 
 const AdminLogin = () => {
@@ -13,16 +14,20 @@ const AdminLogin = () => {
     setError('');
     setLoading(true);
 
-    // TODO: Replace with actual API call
-    // For now, using simple authentication
-    if (credentials.username === 'admin' && credentials.password === 'admin123') {
-      localStorage.setItem('adminToken', 'demo-token');
-      navigate('/admin/dashboard');
-    } else {
-      setError('Invalid username or password');
+    try {
+      const response = await adminAPI.login(credentials);
+      
+      if (response.success && response.token) {
+        localStorage.setItem('adminToken', response.token);
+        navigate('/admin/dashboard');
+      } else {
+        setError('Login failed. Please try again.');
+      }
+    } catch (err) {
+      setError(err.message || 'Invalid username or password');
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   return (
