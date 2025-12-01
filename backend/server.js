@@ -54,6 +54,23 @@ function sanitizePhone(phone) {
   return clean;
 }
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Hammad Foundation School API',
+    version: '1.0.0',
+    status: 'running',
+    endpoints: {
+      health: '/api/health',
+      payment: '/api/payment/create',
+      admin: '/api/admin/login',
+      content: '/api/content/*',
+      donations: '/api/donations'
+    },
+    documentation: 'Visit /api/health for server status'
+  });
+});
+
 // API Routes
 app.use('/api/admin', adminRoutes);
 app.use('/api/donations', donationRoutes);

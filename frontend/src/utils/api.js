@@ -1,5 +1,5 @@
 // API utility for making requests to the backend
-const API_URL = import.meta.env.VITE_API_URL || 'https://your-backend-app.vercel.app';
+const API_URL = 'https://hammad-foundation-beackend.vercel.app';
 
 // Get auth token
 export const getToken = () => localStorage.getItem('adminToken');

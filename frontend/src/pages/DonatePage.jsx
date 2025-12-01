@@ -42,7 +42,7 @@ const DonatePage = () => {
     setError('');
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://your-backend-app.vercel.app';
+      const apiUrl = 'https://hammad-foundation-beackend.vercel.app';
       
       const response = await fetch(`${apiUrl}/api/payment/create`, {
         method: 'POST',
