@@ -12,6 +12,7 @@ const Donation = require('./models/Donation');
 const adminRoutes = require('./routes/admin');
 const donationRoutes = require('./routes/donations');
 const contentRoutes = require('./routes/content');
+const uploadRoutes = require('./routes/upload');
 
 const app = express();
 
@@ -93,6 +94,7 @@ app.get('/', (req, res) => {
 app.use('/api/admin', adminRoutes);
 app.use('/api/donations', donationRoutes);
 app.use('/api/content', contentRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

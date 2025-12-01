@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { contentAPI, uploadAPI } from '../../../utils/api';
 import './SliderManager.css';
 
 const SliderManager = () => {
@@ -31,16 +32,100 @@ const SliderManager = () => {
 
   const [editingSlide, setEditingSlide] = useState(null);
   const [formData, setFormData] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  // Load slides from API
+  useEffect(() => {
+    loadSlides();
+  }, []);
+
+  const loadSlides = async () => {
+    try {
+      setLoading(true);
+      const response = await contentAPI.getSlides();
+      if (response.success) {
+        setSlides(response.slides.map(s => ({
+          id: s._id,
+          image: s.image_url,
+          badge: s.badge,
+          title: s.title,
+          subtitle: s.subtitle,
+          description: s.description
+        })));
+      }
+    } catch (error) {
+      console.error('Failed to load slides:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size should be less than 5MB');
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const response = await uploadAPI.uploadImage(file);
+      
+      if (response.success) {
+        setFormData({ ...formData, image: response.imageUrl });
+        alert('Image uploaded successfully!');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('Failed to upload image: ' + error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleEdit = (slide) => {
     setEditingSlide(slide.id);
     setFormData(slide);
   };
 
-  const handleSave = () => {
-    setSlides(slides.map(s => s.id === editingSlide ? formData : s));
-    setEditingSlide(null);
-    alert('Slide updated successfully!');
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      
+      const slideData = {
+        image_url: formData.image,
+        badge: formData.badge,
+        title: formData.title,
+        subtitle: formData.subtitle,
+        description: formData.description
+      };
+
+      if (editingSlide === 'new') {
+        await contentAPI.createSlide(slideData);
+      } else {
+        await contentAPI.updateSlide(editingSlide, slideData);
+      }
+
+      await loadSlides();
+      setEditingSlide(null);
+      setFormData({});
+      alert('Slide saved successfully!');
+    } catch (error) {
+      console.error('Save error:', error);
+      alert('Failed to save slide: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -48,24 +133,37 @@ const SliderManager = () => {
     setFormData({});
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this slide?')) {
-      setSlides(slides.filter(s => s.id !== id));
+      try {
+        setLoading(true);
+        await contentAPI.deleteSlide(id);
+        await loadSlides();
+        alert('Slide deleted successfully!');
+      } catch (error) {
+        console.error('Delete error:', error);
+        alert('Failed to delete slide: ' + error.message);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   const handleAddNew = () => {
-    const newSlide = {
-      id: Date.now(),
+    setFormData({
+      id: 'new',
       image: '',
       badge: 'NEW',
       title: 'New Slide',
       subtitle: 'Subtitle',
       description: 'Description'
-    };
-    setSlides([...slides, newSlide]);
-    handleEdit(newSlide);
+    });
+    setEditingSlide('new');
   };
+
+  if (loading && slides.length === 0) {
+    return <div className="loading">Loading slides...</div>;
+  }
 
   return (
     <div className="slider-manager">
@@ -82,13 +180,28 @@ const SliderManager = () => {
             {editingSlide === slide.id ? (
               <div className="slide-form">
                 <div className="form-group">
-                  <label>Image URL</label>
-                  <input
-                    type="text"
-                    value={formData.image}
-                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                    placeholder="Enter image URL"
-                  />
+                  <label>Image</label>
+                  {formData.image && (
+                    <div className="image-preview">
+                      <img src={formData.image} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '8px' }} />
+                    </div>
+                  )}
+                  <div className="upload-container">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={uploading}
+                      id={`upload-${slide.id}`}
+                      style={{ display: 'none' }}
+                    />
+                    <label htmlFor={`upload-${slide.id}`} className="btn-upload">
+                      {uploading ? '📤 Uploading...' : '📁 Upload New Image'}
+                    </label>
+                    <small style={{ display: 'block', marginTop: '8px', color: '#666' }}>
+                      Max size: 5MB. Previous image will be replaced.
+                    </small>
+                  </div>
                 </div>
 
                 <div className="form-group">
@@ -132,8 +245,10 @@ const SliderManager = () => {
                 </div>
 
                 <div className="form-actions">
-                  <button className="btn-save" onClick={handleSave}>Save</button>
-                  <button className="btn-cancel" onClick={handleCancel}>Cancel</button>
+                  <button className="btn-save" onClick={handleSave} disabled={loading || uploading || !formData.image}>
+                    {loading ? 'Saving...' : 'Save'}
+                  </button>
+                  <button className="btn-cancel" onClick={handleCancel} disabled={loading}>Cancel</button>
                 </div>
               </div>
             ) : (
