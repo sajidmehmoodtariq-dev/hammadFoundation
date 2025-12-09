@@ -13,7 +13,7 @@ const PaymentSuccess = () => {
 
     // Optional: Verify payment status with backend
     if (transactionId) {
-      const apiUrl = 'https://hammad-foundation-beackend.vercel.app';
+      const apiUrl = 'http://localhost:3000';
       
       fetch(`${apiUrl}/api/payment/status/${transactionId}`)
         .then(res => res.json())

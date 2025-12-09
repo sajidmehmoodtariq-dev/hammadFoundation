@@ -43,7 +43,7 @@ const HeroSlider = () => {
 
   const fetchSlides = async () => {
     try {
-      const response = await fetch('https://hammad-foundation-beackend.vercel.app/api/content/slider');
+      const response = await fetch('http://localhost:3000/api/content/slider');
       const data = await response.json();
       
       if (data.success && data.slides && data.slides.length > 0) {

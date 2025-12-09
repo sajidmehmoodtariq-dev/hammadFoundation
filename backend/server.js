@@ -149,22 +149,26 @@ app.post('/api/payment/create', async (req, res) => {
 
     const jsonOrder = JSON.stringify(payloadArray);
     
-    // Log the EXACT request we are making
+    // Build the endpoint URL with query parameter
     const requestUrl = `${PAYPRO_CONFIG.baseUrl}/cpay/co?oJson=${encodeURIComponent(jsonOrder)}`;
     
-    console.log('🔄 Sending Request to:', PAYPRO_CONFIG.baseUrl);
+    console.log('🔄 Sending Request to:', requestUrl);
     console.log('📦 Merchant ID Used:', PAYPRO_CONFIG.merchantId);
     console.log('📱 Phone Sent:', sanitizePhone(phone));
+    console.log('📋 JSON Payload:', jsonOrder);
 
-    // Send POST request
-    // Note: We send an empty object {} as body because the data is in the URL query string.
+    // Send POST request (PayPro API requires POST method)
     const response = await axios.post(requestUrl, {}, {
         headers: {
-            'Content-Type': 'application/json' // Helps server understand the empty body
+            'Content-Type': 'application/json'
         }
     });
 
     const data = response.data;
+
+    // Log the ACTUAL response received
+    console.log('📥 PayPro Response Type:', typeof data);
+    console.log('📥 PayPro Response:', JSON.stringify(data, null, 2));
 
     // Handle array response
     if (Array.isArray(data) && data.length > 0) {
@@ -186,18 +190,27 @@ app.post('/api/payment/create', async (req, res) => {
     }
 
     // Fallback if response isn't an array
-    throw new Error('Unexpected response format from PayPro');
+    throw new Error('Unexpected response format from PayPro. Got: ' + typeof data);
 
   } catch (error) {
     console.error('❌ PayPro Error:', error.message);
-    // If it's a 500 from axios, log the response data
+    
+    // If it's a response error, log detailed info
     if (error.response) {
-      console.error('🔍 Server Response:', error.response.data);
+      console.error('🔍 Status Code:', error.response.status);
+      console.error('🔍 Response Type:', typeof error.response.data);
+      
+      // If HTML response, it means wrong endpoint or credentials
+      if (typeof error.response.data === 'string' && error.response.data.includes('<!DOCTYPE') || error.response.data.includes('<html')) {
+        console.error('⚠️  Received HTML instead of JSON - Invalid endpoint or credentials');
+      }
     }
+    
     return res.status(500).json({
       success: false,
-      message: 'Payment creation failed',
-      error: error.message
+      message: 'Payment creation failed. Please verify PayPro credentials and endpoint.',
+      error: error.message,
+      hint: 'The API returned HTML instead of JSON. Check merchant credentials or contact PayPro support.'
     });
   }
 });

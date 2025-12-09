@@ -30,7 +30,7 @@ I invite you to join us in our mission to educate and empower the next generatio
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('https://hammad-foundation-beackend.vercel.app/api/content/stats');
+      const response = await fetch('http://localhost:3000/api/content/stats');
       const data = await response.json();
       
       if (data.success && data.stats) {
@@ -48,7 +48,7 @@ I invite you to join us in our mission to educate and empower the next generatio
 
   const fetchDirector = async () => {
     try {
-      const response = await fetch('https://hammad-foundation-beackend.vercel.app/api/content/director');
+      const response = await fetch('http://localhost:3000/api/content/director');
       const data = await response.json();
       
       if (data.success && data.director) {
