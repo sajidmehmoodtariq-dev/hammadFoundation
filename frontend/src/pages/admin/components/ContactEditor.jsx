@@ -13,7 +13,8 @@ const ContactEditor = () => {
       twitter: '',
       instagram: '',
       linkedin: ''
-    }
+    },
+    branches: []
   });
 
   const [loading, setLoading] = useState(false);
@@ -54,6 +55,34 @@ const ContactEditor = () => {
         [name]: value
       }));
     }
+  };
+
+  const handleBranchChange = (index, field, value) => {
+    setContactInfo(prev => {
+      const newBranches = [...prev.branches];
+      newBranches[index] = {
+        ...newBranches[index],
+        [field]: value
+      };
+      return {
+        ...prev,
+        branches: newBranches
+      };
+    });
+  };
+
+  const addBranch = () => {
+    setContactInfo(prev => ({
+      ...prev,
+      branches: [...prev.branches, { name: '', location: '', link: '#' }]
+    }));
+  };
+
+  const removeBranch = (index) => {
+    setContactInfo(prev => ({
+      ...prev,
+      branches: prev.branches.filter((_, i) => i !== index)
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -212,6 +241,71 @@ const ContactEditor = () => {
               placeholder="https://linkedin.com/..."
             />
           </div>
+        </div>
+
+        <div className="form-section">
+          <div className="section-header-with-btn">
+            <h3>Our Branches</h3>
+            <button type="button" onClick={addBranch} className="add-branch-btn">
+              ➕ Add Branch
+            </button>
+          </div>
+          
+          {contactInfo.branches && contactInfo.branches.length > 0 ? (
+            <div className="branches-list">
+              {contactInfo.branches.map((branch, index) => (
+                <div key={index} className="branch-item">
+                  <div className="branch-header">
+                    <h4>Branch {index + 1}</h4>
+                    <button 
+                      type="button" 
+                      onClick={() => removeBranch(index)} 
+                      className="remove-branch-btn"
+                    >
+                      ❌ Remove
+                    </button>
+                  </div>
+                  
+                  <div className="form-group">
+                    <label htmlFor={`branch_name_${index}`}>Branch Name</label>
+                    <input
+                      type="text"
+                      id={`branch_name_${index}`}
+                      value={branch.name}
+                      onChange={(e) => handleBranchChange(index, 'name', e.target.value)}
+                      placeholder="e.g., Main Campus, Branch Campus 1"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor={`branch_location_${index}`}>Location</label>
+                    <input
+                      type="text"
+                      id={`branch_location_${index}`}
+                      value={branch.location}
+                      onChange={(e) => handleBranchChange(index, 'location', e.target.value)}
+                      placeholder="e.g., [City, Area]"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor={`branch_link_${index}`}>Link (Optional)</label>
+                    <input
+                      type="text"
+                      id={`branch_link_${index}`}
+                      value={branch.link}
+                      onChange={(e) => handleBranchChange(index, 'link', e.target.value)}
+                      placeholder="#"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="no-branches">No branches added yet. Click "Add Branch" to create one.</p>
+          )}
         </div>
 
         <button type="submit" className="submit-btn" disabled={loading}>

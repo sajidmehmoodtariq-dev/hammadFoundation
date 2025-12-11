@@ -11,7 +11,8 @@ const Footer = () => {
       twitter: '',
       instagram: '',
       linkedin: ''
-    }
+    },
+    branches: []
   });
 
   useEffect(() => {
@@ -59,9 +60,21 @@ const Footer = () => {
         <div className="footer-section">
           <h4>Our Branches</h4>
           <ul>
-            <li><a href="#">Main Campus - [Location]</a></li>
-            <li><a href="#">Branch Campus 1 - [Location]</a></li>
-            <li><a href="#">Branch Campus 2 - [Location]</a></li>
+            {contactInfo.branches && contactInfo.branches.length > 0 ? (
+              contactInfo.branches.map((branch, index) => (
+                <li key={index}>
+                  <a href={branch.link || '#'}>
+                    {branch.name} - {branch.location}
+                  </a>
+                </li>
+              ))
+            ) : (
+              <>
+                <li><a href="#">Main Campus - [Location]</a></li>
+                <li><a href="#">Branch Campus 1 - [Location]</a></li>
+                <li><a href="#">Branch Campus 2 - [Location]</a></li>
+              </>
+            )}
           </ul>
         </div>
         

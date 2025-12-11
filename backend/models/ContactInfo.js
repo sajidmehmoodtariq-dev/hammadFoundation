@@ -27,6 +27,20 @@ const contactInfoSchema = new mongoose.Schema({
     instagram: String,
     linkedin: String
   },
+  branches: [{
+    name: {
+      type: String,
+      required: true
+    },
+    location: {
+      type: String,
+      required: true
+    },
+    link: {
+      type: String,
+      default: '#'
+    }
+  }],
   updatedAt: {
     type: Date,
     default: Date.now

@@ -119,7 +119,12 @@ router.get('/contact', async (req, res) => {
           twitter: '',
           instagram: '',
           linkedin: ''
-        }
+        },
+        branches: [
+          { name: 'Main Campus', location: '[Location]', link: '#' },
+          { name: 'Branch Campus 1', location: '[Location]', link: '#' },
+          { name: 'Branch Campus 2', location: '[Location]', link: '#' }
+        ]
       });
     }
     
