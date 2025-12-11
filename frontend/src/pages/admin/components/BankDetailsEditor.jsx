@@ -10,7 +10,8 @@ const BankDetailsEditor = () => {
     bank_name: '',
     branch_code: '',
     branch_name: '',
-    iban: ''
+    iban: '',
+    swift_code: ''
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -33,7 +34,8 @@ const BankDetailsEditor = () => {
           bank_name: response.bank.bank_name,
           branch_code: response.bank.branch_code || '',
           branch_name: response.bank.branch_name || '',
-          iban: response.bank.iban || ''
+          iban: response.bank.iban || '',
+          swift_code: response.bank.swift_code || ''
         };
         setBankDetails(details);
         setFormData(details);
@@ -54,7 +56,8 @@ const BankDetailsEditor = () => {
         bank_name: formData.bank_name,
         branch_code: formData.branch_code,
         branch_name: formData.branch_name,
-        iban: formData.iban
+        iban: formData.iban,
+        swift_code: formData.swift_code
       };
 
       await contentAPI.updateBank(formData.id, bankData);
@@ -163,6 +166,16 @@ const BankDetailsEditor = () => {
                 placeholder="International Bank Account Number"
               />
             </div>
+
+            <div className="form-group">
+              <label>Swift Code (Optional)</label>
+              <input
+                type="text"
+                value={formData.swift_code}
+                onChange={(e) => setFormData({ ...formData, swift_code: e.target.value })}
+                placeholder="BIC/SWIFT Code for international transfers"
+              />
+            </div>
           </div>
         ) : (
           <div className="bank-preview">
@@ -205,6 +218,13 @@ const BankDetailsEditor = () => {
                 <div className="detail-row">
                   <span className="detail-label">IBAN:</span>
                   <span className="detail-value">{bankDetails.iban}</span>
+                </div>
+              )}
+
+              {bankDetails.swift_code && (
+                <div className="detail-row">
+                  <span className="detail-label">Swift Code:</span>
+                  <span className="detail-value">{bankDetails.swift_code}</span>
                 </div>
               )}
             </div>

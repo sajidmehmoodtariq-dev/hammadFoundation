@@ -24,6 +24,10 @@ const bankDetailSchema = new mongoose.Schema({
   iban: {
     type: String,
     default: ''
+  },
+  swift_code: {
+    type: String,
+    default: ''
   }
 }, {
   timestamps: true

@@ -74,7 +74,7 @@ const DonatePage = () => {
 
   const fetchBankDetails = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/content/bank');
+      const response = await fetch('https://hammad-foundation-beackend.vercel.app/api/content/bank');
       const data = await response.json();
       
       if (data.success && data.bank) {
@@ -91,7 +91,7 @@ const DonatePage = () => {
     setError('');
 
     try {
-      const apiUrl = 'http://localhost:3000';
+      const apiUrl = 'https://hammad-foundation-beackend.vercel.app';
       
       const response = await fetch(`${apiUrl}/api/payment/create`, {
         method: 'POST',
@@ -197,6 +197,12 @@ const DonatePage = () => {
                   <div className="info-row">
                     <span className="label">Branch:</span>
                     <span className="value">{bankDetails.branch_name}</span>
+                  </div>
+                )}
+                {bankDetails.swift_code && (
+                  <div className="info-row">
+                    <span className="label">Swift Code:</span>
+                    <span className="value">{bankDetails.swift_code}</span>
                   </div>
                 )}
               </div>
