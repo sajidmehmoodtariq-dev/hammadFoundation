@@ -229,3 +229,33 @@
   color: #721c24;
   border: 1px solid #f5c6cb;
 }
+
+.form-group input[type="file"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.uploading-text {
+  color: #2c5f2d;
+  font-size: 14px;
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+.image-preview {
+  margin-top: 10px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.image-preview img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  display: block;
+}

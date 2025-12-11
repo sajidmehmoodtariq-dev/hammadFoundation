@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { uploadAPI } from '../../../utils/api';
 import './GalleryManager.css';
 
 const GalleryManager = () => {
   const [galleryItems, setGalleryItems] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
   const [editingItem, setEditingItem] = useState(null);
 
@@ -35,6 +37,49 @@ const GalleryManager = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleImageUpload = async (e, itemId = null) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setMessage('Please select an image file');
+      return;
+    }
+
+    if (file.size > 3 * 1024 * 1024) {
+      setMessage('Image size should be less than 3MB');
+      return;
+    }
+
+    try {
+      setUploading(true);
+      setMessage('Uploading image...');
+      const response = await uploadAPI.uploadImage(file);
+      
+      if (response.success) {
+        if (itemId) {
+          // If editing existing item
+          setEditingItem(prev => ({
+            ...prev,
+            image_url: response.imageUrl
+          }));
+        } else {
+          // If editing in the form
+          setEditingItem(prev => ({
+            ...prev,
+            image_url: response.imageUrl
+          }));
+        }
+        setMessage('Image uploaded successfully!');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      setMessage('Failed to upload image: ' + error.message);
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSave = async () => {
@@ -94,13 +139,27 @@ const GalleryManager = () => {
     }
   };
 
-  const handleAdd = async () => {
+  const handleAdd = () => {
+    // Create a new empty item for editing
     const newItem = {
-      image_url: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80',
+      _id: 'new',
+      image_url: '',
       title: 'New Gallery Item',
       display_order: galleryItems.length + 1,
       is_active: true
     };
+    setEditingItem(newItem);
+    setMessage('');
+  };
+
+  const handleSaveNew = async () => {
+    if (!editingItem.image_url) {
+      setMessage('Please upload an image first');
+      return;
+    }
+
+    setLoading(true);
+    setMessage('');
 
     try {
       const response = await fetch('https://hammad-foundation-beackend.vercel.app/api/content/gallery', {
@@ -108,13 +167,19 @@ const GalleryManager = () => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(newItem)
+        body: JSON.stringify({
+          image_url: editingItem.image_url,
+          title: editingItem.title,
+          display_order: editingItem.display_order,
+          is_active: editingItem.is_active
+        })
       });
 
       const data = await response.json();
 
       if (data.success) {
         setMessage('Gallery item added successfully!');
+        setEditingItem(null);
         fetchGalleryItems();
       } else {
         setMessage('Failed to add gallery item');
@@ -122,6 +187,8 @@ const GalleryManager = () => {
     } catch (error) {
       setMessage('Error adding gallery item');
       console.error('Error:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -137,18 +204,90 @@ const GalleryManager = () => {
       {message && <div className={`message ${message.includes('success') ? 'success' : 'error'}`}>{message}</div>}
       
       <div className="gallery-items-grid">
+        {editingItem && editingItem._id === 'new' && (
+          <div key="new" className="gallery-card">
+            <div className="edit-form">
+              <div className="form-group">
+                <label>Upload Image</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={uploading}
+                />
+                {uploading && <p className="uploading-text">Uploading...</p>}
+                {editingItem.image_url && (
+                  <div className="image-preview">
+                    <img src={editingItem.image_url} alt="Preview" />
+                  </div>
+                )}
+              </div>
+              
+              <div className="form-group">
+                <label>Title</label>
+                <input
+                  type="text"
+                  name="title"
+                  value={editingItem.title}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Display Order</label>
+                <input
+                  type="number"
+                  name="display_order"
+                  value={editingItem.display_order}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  <input
+                    type="checkbox"
+                    name="is_active"
+                    checked={editingItem.is_active}
+                    onChange={(e) => setEditingItem(prev => ({
+                      ...prev,
+                      is_active: e.target.checked
+                    }))}
+                  />
+                  Active
+                </label>
+              </div>
+
+              <div className="form-actions">
+                <button onClick={handleSaveNew} className="save-btn" disabled={loading || uploading || !editingItem.image_url}>
+                  {loading ? 'Saving...' : '✓ Save'}
+                </button>
+                <button onClick={handleCancel} className="cancel-btn">
+                  ✕ Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
         {galleryItems.map((item) => (
           <div key={item._id} className="gallery-card">
             {editingItem && editingItem._id === item._id ? (
               <div className="edit-form">
                 <div className="form-group">
-                  <label>Image URL</label>
+                  <label>Upload Image</label>
                   <input
-                    type="text"
-                    name="image_url"
-                    value={editingItem.image_url}
-                    onChange={handleChange}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={uploading}
                   />
+                  {uploading && <p className="uploading-text">Uploading...</p>}
+                  {editingItem.image_url && (
+                    <div className="image-preview">
+                      <img src={editingItem.image_url} alt="Preview" />
+                    </div>
+                  )}
                 </div>
                 
                 <div className="form-group">
@@ -187,7 +326,7 @@ const GalleryManager = () => {
                 </div>
 
                 <div className="form-actions">
-                  <button onClick={handleSave} className="save-btn" disabled={loading}>
+                  <button onClick={editingItem._id === 'new' ? handleSaveNew : handleSave} className="save-btn" disabled={loading || uploading}>
                     {loading ? 'Saving...' : '✓ Save'}
                   </button>
                   <button onClick={handleCancel} className="cancel-btn">
