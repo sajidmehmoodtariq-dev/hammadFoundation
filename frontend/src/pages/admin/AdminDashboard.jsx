@@ -4,6 +4,8 @@ import SliderManager from './components/SliderManager';
 import DirectorEditor from './components/DirectorEditor';
 import StatsEditor from './components/StatsEditor';
 import BankDetailsEditor from './components/BankDetailsEditor';
+import ContactEditor from './components/ContactEditor';
+import GalleryManager from './components/GalleryManager';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -20,6 +22,8 @@ const AdminDashboard = () => {
     { id: 'director', label: 'Director Message', icon: '👤' },
     { id: 'stats', label: 'Statistics', icon: '📊' },
     { id: 'bank', label: 'Bank Details', icon: '💳' },
+    { id: 'contact', label: 'Contact Info', icon: '📞' },
+    { id: 'gallery', label: 'Admission Gallery', icon: '📸' },
   ];
 
   return (
@@ -61,6 +65,8 @@ const AdminDashboard = () => {
           {activeSection === 'director' && <DirectorEditor />}
           {activeSection === 'stats' && <StatsEditor />}
           {activeSection === 'bank' && <BankDetailsEditor />}
+          {activeSection === 'contact' && <ContactEditor />}
+          {activeSection === 'gallery' && <GalleryManager />}
         </div>
       </main>
     </div>

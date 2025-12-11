@@ -1,6 +1,36 @@
+import { useState, useEffect } from 'react';
 import './Footer.css';
 
 const Footer = () => {
+  const [contactInfo, setContactInfo] = useState({
+    email: 'info@hammadfoundation.edu.pk',
+    phone: '92 300 8099015',
+    address: '[School Address Here]',
+    socialMedia: {
+      facebook: '',
+      twitter: '',
+      instagram: '',
+      linkedin: ''
+    }
+  });
+
+  useEffect(() => {
+    fetchContactInfo();
+  }, []);
+
+  const fetchContactInfo = async () => {
+    try {
+      const response = await fetch('https://hammad-foundation-beackend.vercel.app/api/content/contact');
+      const data = await response.json();
+      
+      if (data.success && data.contact) {
+        setContactInfo(data.contact);
+      }
+    } catch (error) {
+      console.error('Failed to load contact info:', error);
+    }
+  };
+
   return (
     <footer className="footer">
       <div className="footer-container">
@@ -11,9 +41,9 @@ const Footer = () => {
         
         <div className="footer-section">
           <h4>Contact Us</h4>
-          <p>Email: info@hammadfoundation.edu.pk</p>
-          <p>Phone: +92 300 8099015</p>
-          <p>Address: [School Address Here]</p>
+          <p>Email: {contactInfo.email}</p>
+          <p>Phone: {contactInfo.phone}</p>
+          <p>Address: {contactInfo.address}</p>
         </div>
         
         <div className="footer-section">
@@ -38,9 +68,18 @@ const Footer = () => {
         <div className="footer-section">
           <h4>Follow Us</h4>
           <div className="social-links">
-            <a href="#" aria-label="Facebook">📘 Facebook</a>
-            <a href="#" aria-label="Twitter">🐦 Twitter</a>
-            <a href="#" aria-label="Instagram">📷 Instagram</a>
+            {contactInfo.socialMedia.facebook && (
+              <a href={contactInfo.socialMedia.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook">📘 Facebook</a>
+            )}
+            {contactInfo.socialMedia.twitter && (
+              <a href={contactInfo.socialMedia.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter">🐦 Twitter</a>
+            )}
+            {contactInfo.socialMedia.instagram && (
+              <a href={contactInfo.socialMedia.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram">📷 Instagram</a>
+            )}
+            {contactInfo.socialMedia.linkedin && (
+              <a href={contactInfo.socialMedia.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">💼 LinkedIn</a>
+            )}
           </div>
         </div>
       </div>

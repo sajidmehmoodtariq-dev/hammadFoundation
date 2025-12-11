@@ -23,14 +23,17 @@ Our dedicated faculty and staff work tirelessly to create a nurturing environmen
 I invite you to join us in our mission to educate and empower the next generation. Together, we can make a difference.`
   });
 
+  const [galleryItems, setGalleryItems] = useState([]);
+
   useEffect(() => {
     fetchStats();
     fetchDirector();
+    fetchGallery();
   }, []);
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/content/stats');
+      const response = await fetch('https://hammad-foundation-beackend.vercel.app/api/content/stats');
       const data = await response.json();
       
       if (data.success && data.stats) {
@@ -48,7 +51,7 @@ I invite you to join us in our mission to educate and empower the next generatio
 
   const fetchDirector = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/content/director');
+      const response = await fetch('https://hammad-foundation-beackend.vercel.app/api/content/director');
       const data = await response.json();
       
       if (data.success && data.director) {
@@ -56,6 +59,20 @@ I invite you to join us in our mission to educate and empower the next generatio
       }
     } catch (error) {
       console.error('Failed to load director info:', error);
+    }
+  };
+
+  const fetchGallery = async () => {
+    try {
+      const response = await fetch('https://hammad-foundation-beackend.vercel.app/api/content/gallery');
+      const data = await response.json();
+      if (data && Array.isArray(data)) {
+        // Filter active items and sort by display_order
+        const activeItems = data.filter(item => item.is_active).sort((a, b) => a.display_order - b.display_order);
+        setGalleryItems(activeItems);
+      }
+    } catch (error) {
+      console.error('Error fetching gallery items:', error);
     }
   };
 
@@ -397,65 +414,29 @@ I invite you to join us in our mission to educate and empower the next generatio
           </div>
           
           <div className="gallery-grid">
-            <div className="gallery-item">
-              <img 
-                src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80" 
-                alt="Students in classroom" 
-              />
-              <div className="gallery-overlay">
-                <h4>Interactive Learning</h4>
+            {galleryItems.length > 0 ? (
+              galleryItems.map((item) => (
+                <div key={item._id} className="gallery-item">
+                  <img 
+                    src={item.image_url} 
+                    alt={item.title} 
+                  />
+                  <div className="gallery-overlay">
+                    <h4>{item.title}</h4>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="gallery-item">
+                <img 
+                  src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80" 
+                  alt="Students in classroom" 
+                />
+                <div className="gallery-overlay">
+                  <h4>Interactive Learning</h4>
+                </div>
               </div>
-            </div>
-
-            <div className="gallery-item">
-              <img 
-                src="https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=600&q=80" 
-                alt="Science lab activities" 
-              />
-              <div className="gallery-overlay">
-                <h4>Science & Technology</h4>
-              </div>
-            </div>
-
-            <div className="gallery-item">
-              <img 
-                src="https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600&q=80" 
-                alt="Sports activities" 
-              />
-              <div className="gallery-overlay">
-                <h4>Sports & Recreation</h4>
-              </div>
-            </div>
-
-            <div className="gallery-item">
-              <img 
-                src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600&q=80" 
-                alt="Library reading" 
-              />
-              <div className="gallery-overlay">
-                <h4>Library Resources</h4>
-              </div>
-            </div>
-
-            <div className="gallery-item">
-              <img 
-                src="https://images.unsplash.com/photo-1581726707445-75cbe4efc586?w=600&q=80" 
-                alt="Art activities" 
-              />
-              <div className="gallery-overlay">
-                <h4>Creative Arts</h4>
-              </div>
-            </div>
-
-            <div className="gallery-item">
-              <img 
-                src="https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=600&q=80" 
-                alt="Group activities" 
-              />
-              <div className="gallery-overlay">
-                <h4>Team Building</h4>
-              </div>
-            </div>
+            )}
           </div>
 
           <div className="admission-cta">

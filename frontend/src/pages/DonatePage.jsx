@@ -11,6 +11,12 @@ const DonatePage = () => {
     currency: 'PKR'
   });
 
+  const [contactInfo, setContactInfo] = useState({
+    donationEmail: 'donations@hammadfoundation.edu.pk',
+    phone: '92 300 8099015',
+    officeHours: 'Monday - Friday, 9:00 AM - 5:00 PM'
+  });
+
   const currencies = {
     PKR: { symbol: 'Rs.', label: 'PKR (Pakistani Rupee)', amounts: [1000, 5000, 10000, 25000] },
     USD: { symbol: '$', label: 'USD (US Dollar)', amounts: [10, 50, 100, 250] },
@@ -46,7 +52,25 @@ const DonatePage = () => {
 
   useEffect(() => {
     fetchBankDetails();
+    fetchContactInfo();
   }, []);
+
+  const fetchContactInfo = async () => {
+    try {
+      const response = await fetch('https://hammad-foundation-beackend.vercel.app/api/content/contact');
+      const data = await response.json();
+      
+      if (data.success && data.contact) {
+        setContactInfo({
+          donationEmail: data.contact.donationEmail,
+          phone: data.contact.phone,
+          officeHours: data.contact.officeHours
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load contact info:', error);
+    }
+  };
 
   const fetchBankDetails = async () => {
     try {
@@ -350,9 +374,9 @@ const DonatePage = () => {
             other ways to support our mission, please contact us:
           </p>
           <div className="contact-info">
-            <p>📧 Email: donations@hammadfoundation.edu.pk</p>
-            <p>📞 Phone: +92 XXX XXXXXXX</p>
-            <p>🕒 Office Hours: Monday - Friday, 9:00 AM - 5:00 PM</p>
+            <p>📧 Email: {contactInfo.donationEmail}</p>
+            <p>📞 Phone: {contactInfo.phone}</p>
+            <p>🕒 Office Hours: {contactInfo.officeHours}</p>
           </div>
         </div>
       </section>

@@ -4,6 +4,8 @@ const SliderImage = require('../models/SliderImage');
 const DirectorInfo = require('../models/DirectorInfo');
 const Statistic = require('../models/Statistic');
 const BankDetail = require('../models/BankDetail');
+const ContactInfo = require('../models/ContactInfo');
+const GalleryItem = require('../models/GalleryItem');
 
 // ===== SLIDER IMAGES =====
 router.get('/slider', async (req, res) => {
@@ -96,6 +98,87 @@ router.put('/bank/:id', async (req, res) => {
     res.json({ success: true, bank });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to update bank details' });
+  }
+});
+
+// ===== CONTACT INFO =====
+router.get('/contact', async (req, res) => {
+  try {
+    let contact = await ContactInfo.findOne();
+    
+    // If no contact info exists, create default
+    if (!contact) {
+      contact = await ContactInfo.create({
+        email: 'info@hammadfoundation.edu.pk',
+        phone: '92 300 8099015',
+        address: '[School Address Here]',
+        donationEmail: 'donations@hammadfoundation.edu.pk',
+        officeHours: 'Monday - Friday, 9:00 AM - 5:00 PM',
+        socialMedia: {
+          facebook: '',
+          twitter: '',
+          instagram: '',
+          linkedin: ''
+        }
+      });
+    }
+    
+    res.json({ success: true, contact });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch contact info' });
+  }
+});
+
+router.put('/contact', async (req, res) => {
+  try {
+    let contact = await ContactInfo.findOne();
+    
+    if (!contact) {
+      contact = await ContactInfo.create(req.body);
+    } else {
+      contact = await ContactInfo.findByIdAndUpdate(contact._id, req.body, { new: true });
+    }
+    
+    res.json({ success: true, contact });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to update contact info' });
+  }
+});
+
+// ===== GALLERY ITEMS =====
+router.get('/gallery', async (req, res) => {
+  try {
+    const gallery = await GalleryItem.find().sort({ display_order: 1 });
+    res.json({ success: true, gallery });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch gallery items' });
+  }
+});
+
+router.post('/gallery', async (req, res) => {
+  try {
+    const item = await GalleryItem.create(req.body);
+    res.json({ success: true, item });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to create gallery item' });
+  }
+});
+
+router.put('/gallery/:id', async (req, res) => {
+  try {
+    const item = await GalleryItem.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json({ success: true, item });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to update gallery item' });
+  }
+});
+
+router.delete('/gallery/:id', async (req, res) => {
+  try {
+    await GalleryItem.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Gallery item deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to delete gallery item' });
   }
 });
 
