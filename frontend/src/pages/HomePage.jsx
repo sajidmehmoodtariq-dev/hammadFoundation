@@ -66,9 +66,9 @@ I invite you to join us in our mission to educate and empower the next generatio
     try {
       const response = await fetch('https://hammad-foundation-beackend.vercel.app/api/content/gallery');
       const data = await response.json();
-      if (data && Array.isArray(data)) {
+      if (data.success && data.gallery && Array.isArray(data.gallery)) {
         // Filter active items and sort by display_order
-        const activeItems = data.filter(item => item.is_active).sort((a, b) => a.display_order - b.display_order);
+        const activeItems = data.gallery.filter(item => item.is_active).sort((a, b) => a.display_order - b.display_order);
         setGalleryItems(activeItems);
       }
     } catch (error) {
