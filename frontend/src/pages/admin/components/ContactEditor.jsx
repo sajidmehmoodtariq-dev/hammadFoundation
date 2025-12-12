@@ -5,7 +5,7 @@ const ContactEditor = () => {
   const [contactInfo, setContactInfo] = useState({
     email: 'info@hammadfoundation.edu.pk',
     phone: '92 300 8099015',
-    address: '[School Address Here]',
+    address: 'Opposite Garrison Shooting Gallery Barki Road Lahore.',
     donationEmail: 'donations@hammadfoundation.edu.pk',
     officeHours: 'Monday - Friday, 9:00 AM - 5:00 PM',
     socialMedia: {
